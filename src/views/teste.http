@@ -1,0 +1,34 @@
+
+
+POST http://localhost:333/api/estudantes/add
+Content-Type: application/json
+
+{
+  "nome":"",
+  "turmaId":"1"
+
+}
+
+###
+PUT  http://localhost:333/api/editarEstudante/17
+Content-Type: application/json
+
+{
+  "nome":"kerol dias",
+  "turmaId":"1"
+
+}
+
+###
+GET  http://localhost:333/api/getid/2
+###
+GET  http://localhost:3000/api/listarTurmas
+###
+GET  http://localhost:333/api/listarTurmas
+
+###
+DELETE http://localhost:333/api/eliminar/4
+###
+GET  http://localhost:333/api/estudantes
+###
+GET  http://localhost:333/api/estudantes?search${termo}

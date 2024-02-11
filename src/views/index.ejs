@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Estudantes</title>
+  <!-- Adicione o link para o Bootstrap aqui -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Formulário Bootstrap 5</h1>
+  <!-- Botão para exibir o formulário -->
+  <button id="exibirFormulario" class="btn btn-primary">Adicionar Estudante</button>
+
+  <!-- Formulário oculto -->
+  <form id="estudanteForm"  style="display: none;">
+    <div class="form-group">
+      <input type="text" id="estudanteId" disabled name="id">
+      <label for="nome" class="form-label">Nome:</label>
+      <input type="text" id="nome" name="nome" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="turma" class="form-label">Turma:</label>
+      <select id="turma" name="turmaId" class="form-select" required>
+        <option value="">Seleciona a tua opcao</option>
+        <!-- As opções serão adicionadas dinamicamente via AJAX -->
+      </select>
+      
+    </div>
+  <button id="botaoSalvar" onclick="cadastrarOuAtualizar()" class="btn btn-primary">Salvar</button>
+
+  </form>
+</div>
+
+<br>
+  <!-- Formulário de Pesquisa -->
+  <form id="searchForm">
+    <label for="searchInput">Pesquisar:</label>
+    <input type="text" id="searchInput" name="searchInput">
+    <button type="submit">Pesquisar</button>
+  </form>
+
+<!-- Tabela de Estudantes -->
+<table id="tabelaEstudantes" class="table">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>Nome</th>
+      <th>Turma</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Os estudantes serão adicionados dinamicamente via AJAX -->
+  </tbody>
+</table>
+
+
+  <!-- HTML -->
+ 
+  </div>
+  
+<script>
+  // Adiciona um ouvinte de evento para o botão
+  document.getElementById('exibirFormulario').addEventListener('click', function () {
+    // Mostra o formulário
+    document.getElementById('estudanteForm').style.display = 'block';
+  });
+</script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="script.js"></script>
+
+<script>
+   function editarEstudante(estudanteId) {
+      $.ajax({
+        url: `http://localhost:333/api/getid/${estudanteId}`,
+        method: 'GET',
+        success: function (data) {
+          // Preenche o formulário com os detalhes do estudante
+          $('#nome').val(data.nome);
+          // Aqui você pode preencher o seletor de turmas com os detalhes da turma, se necessário
+          $('#estudanteId').val(estudanteId);
+          // Exibe o formulário
+          $('#estudanteForm').show();
+        },
+        error: function (err) {
+          console.error('Erro ao carregar detalhes do estudante:', err);
+        }
+      });
+      
+    }
+</script>
+
+
+<script>
+  $(document).ready(function () {
+    $.ajax({
+      url: '/api/listarTurmas',
+      method: 'GET',
+      success: function (data) {
+        // Verifica se existe a propriedade 'turmas' no objeto de resposta
+        if (data && data.turmas && Array.isArray(data.turmas)) {
+          // Itera sobre cada objeto turma dentro do array turmas
+          data.turmas.forEach(function (turma) {
+            // Adiciona uma opção ao select para cada turma
+            $('#turma').append(`<option value="${turma.id}">${turma.nome}</option>`);
+          });
+        } else {
+          console.error('Os dados recebidos não contêm um array de turmas:', data);
+        }
+      },
+      error: function (err) {
+        console.error('Erro ao carregar turmas:', err);
+      }
+    });
+  });
+
+</script>
+
+<script>
+// Função para habilitar o botão de cadastrar ou atualizar dependendo da presença do ID do estudante
+function atualizarEstadoBotao() {
+const idEstudante = $('#estudanteId').val(); // Obtém o valor do campo ID do estudante
+if (idEstudante) {
+// Se o ID do estudante estiver preenchido, habilita o botão "Atualizar" e desabilita o botão "Cadastrar"
+$('#botaoSalvar').text('Atualizar'); // Altera o texto do botão para "Atualizar"
+} else {
+// Se o ID do estudante estiver vazio, habilita o botão "Cadastrar" e desabilita o botão "Atualizar"
+$('#botaoSalvar').text('Cadastrar'); // Altera o texto do botão para "Cadastrar"
+}
+}
+
+// Chama a função para atualizar o estado dos botões ao carregar a página
+$(document).ready(function() {
+atualizarEstadoBotao();
+  
+});
+
+// Função chamada quando o botão "Cadastrar" ou "Atualizar" é clicado
+function cadastrarOuAtualizar() {
+const idEstudante = $('#estudanteId').val(); // Obtém o valor do campo ID do estudante
+if (idEstudante) {
+// Se o ID do estudante estiver preenchido, chama a função para atualizar o estudante
+atualizarEstudante();
+} else {
+// Se o ID do estudante estiver vazio, chama a função para cadastrar o estudante
+cadastrarEstudante();
+}
+}
+
+// Função para cadastrar um estudante
+function cadastrarEstudante() {
+// Lógica para cadastrar um estudante...
+// Após a operação bem-sucedida, chama a função para atualizar o estado dos botões
+  // Obtém os valores dos campos do formulário
+atualizarEstadoBotao();
+  const nome = $('#nome').val();
+  const turmaId = $('#turma').val();
+
+  // Cria um objeto com os dados do estudante
+  const estudanteData = {
+    nome: nome,
+    turmaId: turmaId
+  };
+
+  // Envia os dados do estudante via AJAX
+  $.ajax({
+    url: '/api/estudantes/add',
+    method: 'POST',
+    contentType: 'application/json', // Define o tipo de conteúdo como JSON
+    data: JSON.stringify(estudanteData), // Converte o objeto para JSON
+    success: function (response) {
+      console.log('Estudante adicionado com sucesso:', response);
+      // Limpa os campos do formulário após o envio bem-sucedido
+      $('#nome').val('');
+      $('#turma').val('');
+      // Aqui você pode adicionar lógica adicional, se necessário
+    },
+    error: function (err) {
+      console.error('Erro ao adicionar estudante:', err);
+    }
+  });
+}
+
+// Função para atualizar um estudante
+function atualizarEstudante(estudanteId) {
+// Lógica para atualizar um estudante...
+// Após a operação bem-sucedida, chama a função para atualizar o estado dos botões
+// Obtém os valores dos campos do formulário
+atualizarEstadoBotao();
+  const id = $('#estudanteId').val();
+  const nome = $('#nome').val();
+  const turmaId = $('#turma').val();
+  $('#estudanteForm').show();
+  // Cria um objeto com os dados do estudante
+  const estudanteData = {
+    id: id,
+    nome: nome,
+    turmaId: turmaId
+  };
+
+  $.ajax({
+    url: `http://localhost:333/api/editarEstudante/${estudanteId}`, // Corrigindo a construção da URL
+    method: 'PUT',
+    contentType: 'application/json',
+    data: JSON.stringify(estudanteData),
+    success: function (response) {
+      console.log('Estudante atualizado com sucesso:', response);
+      $('#nome').val('');
+      $('#turma').val('');
+    },
+    error: function (err) {
+      console.error('Erro ao atualizar estudante:', err);
+    }
+  });
+}
+
+</script>
+</body>
+
+</html>
